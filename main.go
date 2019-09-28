@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 	"strings"
 )
@@ -14,8 +15,9 @@ func sayHello(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 	http.HandleFunc("/", sayHello)
+	fmt.Printf("Server running.")
+	getCSV()
 	if err := http.ListenAndServe(":8080", nil); err != nil {
 		panic(err)
 	}
-	getCSV()
 }
