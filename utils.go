@@ -3,10 +3,11 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"net/url"
 	"strconv"
 	"strings"
 	"time"
-
+	"os"
 	"encoding/csv"
 	"encoding/json"
 	"io"
@@ -89,8 +90,40 @@ func getCSV() {
 	// customAudienceFB, _ := json.Marshal(people)
 
 	// resp, err := http.Post("url", "application/json", bytes.NewBuffer(customAudienceFB))
+	/** 
+	* Create FB Audience
+	*/
+	success, response := createFBAudience()
+	if !success {
+		log.Print(response)
+	}
 
 	facebookJSON, _ := json.Marshal(facebookPayload)
 	fmt.Println(string(facebookJSON))
 
 }
+
+func createFBAudience() (bool, string) {
+
+	authToken, exists := os.LookupEnv("FB_AUTH_TOKEN")
+	if !exists {
+		log.Fatal("No token")
+	}
+	postURL := "https://graph.facebook.com/v4.0/act_388709418470392/customaudiences"
+	payload := url.Values{
+		"name": {"CodeBase Custom Audience"}, 
+		"subtype": {"CUSTOM"}, 
+		"description": {"For Mixpanel Kickoff Project"}, 
+		"access_token": {authToken},
+	}
+
+
+	resp, err := http.PostForm(postURL, payload)
+	if err != nil {
+		return false, "Error posting form" 
+	}
+	defer resp.Body.Close()
+	return true, "Success!"
+
+}
+
